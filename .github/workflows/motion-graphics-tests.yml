@@ -57,6 +57,10 @@ jobs:
         run: |
           npx hyperframes lint
           node ../../scripts/preflight.mjs .
+      - name: Install FFmpeg for draft rendering
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
       - name: Render draft MP4
         working-directory: kit/video-projects/shadoweditor-documentary-headline
         run: npx hyperframes render --quality draft --output renders/headline-draft.mp4
