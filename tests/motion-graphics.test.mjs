@@ -45,3 +45,10 @@ test("generates a timed composition with its exact paused-timeline key", () => {
   assert.match(output.html, /gsap\.timeline\(\{ paused: true \}\)/);
   assert.equal(output.duration, 4.2);
 });
+
+import { readFileSync } from "node:fs";
+
+test("visual editor playback button is wired", () => {
+  const editorSource = readFileSync(new URL("../tools/motion-editor/editor.js", import.meta.url), "utf8");
+  assert.match(editorSource, /\$\("playBtn"\)\.addEventListener\("click", togglePlayback\)/);
+});
