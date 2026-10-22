@@ -268,7 +268,7 @@ export function renderComposition(project) {
     ".doc-ambient:after { content:''; position:absolute; width:520px; height:520px; right:-140px; top:-220px; border:1px solid rgba(var(--doc-red-rgb),.28); border-radius:50%; box-shadow:0 0 0 44px rgba(229,43,50,.025),0 0 0 88px rgba(229,43,50,.02); }",
     ".scene-clip { position:absolute; inset:0; width:100%; height:100%; overflow:hidden; }",
     ".se-layer { position:absolute; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; transform-origin:center center; }",
-    ".se-layer-text { line-height:1.05; overflow-wrap:anywhere; }"
+    ".se-layer-text { line-height:1.05; overflow-wrap:anywhere; }",
     ".scene-content { display:flex; flex-direction:column; width:100%; height:100%; padding:var(--doc-y) max(0px,calc(100% - var(--doc-x) - var(--doc-max-width))) 0 var(--doc-x); gap:0; }",
     ".doc-card { position:relative; width:100%; max-width:var(--doc-max-width); min-width:0; color:var(--doc-ink); isolation:isolate; }",
     ".doc-card:before { content:''; position:absolute; z-index:-1; inset:-30px -32px -28px; border-left:6px solid var(--doc-accent); background:rgba(var(--doc-panel-rgb),var(--doc-panel-opacity)); box-shadow:0 22px 75px rgba(0,0,0,.28); }",
