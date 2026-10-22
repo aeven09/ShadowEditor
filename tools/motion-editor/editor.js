@@ -45,6 +45,7 @@ async function loadProject() {
 }
 async function saveProject() {
   if (!project) return;
+  clearTimeout(saveTimer);
   setStatus("Saving…");
   try {
     await requestJson("/api/project", {
