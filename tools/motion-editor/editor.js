@@ -406,6 +406,7 @@ function bindControls() {
     if (scene) $("playhead").value = String(scene.start);
     populateForm();
   });
+  $("playBtn").addEventListener("click", togglePlayback);
   $("playhead").addEventListener("input", function () {
     renderPreview();
     const s = currentScene();
