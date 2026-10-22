@@ -8,12 +8,13 @@ The goal is comparable creative workflows for selected techniques, not a claim t
 
 ## Current state: prototype, not the destination
 
-The current motion-graphics MVP supports a limited headline-card project model:
+The current motion-graphics MVP supports a limited headline-card project model plus optional static text/rectangle overlays per scene:
 - Eyebrow, headline, highlighted phrase, and subtitle.
 - Position, size, accent color, and a dark panel.
 - A small set of entrance/exit presets.
 - Basic keyframes for offset, scale, and opacity.
 - A local browser inspector and a shared `motion-graphics/project.json`.
+- Optional text/rectangle layers with scene-local timing and editable transforms; projects without layers remain compatible.
 - HyperFrames/GSAP generation and draft rendering.
 
 The browser preview is an approximation. HyperFrames lint, preflight, rendered-video inspection, and user review remain required. Do not describe the prototype as a complete After Effects replacement.
@@ -92,7 +93,7 @@ Flash effects should be deliberately timed and restrained. Avoid intense, repeat
 ## Suggested implementation phases
 
 1. **Stabilize current MVP.** Fix and test playback, save/reload, scene timing, and project generation. Review a rendered draft and preserve a baseline test project.
-2. **Build the real timeline model.** Add layer ordering, multi-scene editing, a timeline scrubber, keyframe CRUD, interpolation/easing, and undo/redo.
+2. **Expand the layer/timeline model.** Add image and vector layers, a unified track view, per-layer keyframe CRUD, interpolation/easing, and undo/redo.
 3. **Expand 2D motion presets.** Implement flash cuts, kinetic type, whip/zoom transitions, paper-card movements, and reusable documentary templates with render tests.
 4. **Build 2.5D depth and camera.** Add layer depth and camera transform support with a validated renderer prototype.
 5. **Implement motion blur.** Choose native or renderer-level temporal sampling based on measured support and render quality.
