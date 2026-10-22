@@ -67,7 +67,7 @@ YouTube and it gets its own framing and text placement.
 
 ## Documentary motion graphics (experimental extension)
 
-ShadowEditor includes an experimental, local-only motion graphics editor for documentary headline cards. It uses one shared project file for AI-assisted edits and manual controls.
+ShadowEditor includes an experimental, local-only motion graphics editor for documentary headline cards, now with optional text and rectangle overlay layers. Layers can have their own timing, position, size, opacity, rotation, scale, fill, and visibility. The same validated project file is used by the local browser editor and the HyperFrames/GSAP generator. This is an early foundation—not a full After Effects replacement; image layers, per-layer keyframe animation, 3D camera, motion blur, and tracking remain roadmap work. See [the motion graphics roadmap](docs/MOTION_GRAPHICS_ROADMAP.md).
 
 After `node setup.mjs` completes, start the editor from the repository root:
 
