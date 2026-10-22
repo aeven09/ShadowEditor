@@ -28,6 +28,10 @@
       <div class="scene-meta"><span id="sceneIdLabel">headline-001</span><button id="duplicateSceneBtn" class="button quiet small">Duplicate</button></div>
       <button id="removeSceneBtn" class="button danger-quiet small wide">Remove selected scene</button>
       <hr>
+      <div class="section-head"><span>LAYERS</span><div class="layer-adds"><button id="addTextLayerBtn" class="button small" title="Add text layer">T+</button><button id="addRectLayerBtn" class="button small" title="Add rectangle layer">▰+</button></div></div>
+      <div id="layerList" class="layer-list"></div>
+      <p class="helper">Layers are ordered bottom-to-top. Each layer can have its own timing and transform.</p>
+      <hr>
       <div class="section-head"><span>AI PROMPT</span></div>
       <p class="helper">Write an editing request. Copy the instruction into the coding agent that is open in your ShadowEditor folder. This page does not call an AI service.</p>
       <textarea id="promptInput" rows="4" placeholder="Make the headline more dramatic and shorten its entrance."></textarea>
@@ -78,6 +82,41 @@
       <label>Maximum text width<input id="maxWidth" type="number" min="160" max="7680" step="10"></label>
       <label class="check-row"><input id="showPanel" type="checkbox"> Show dark panel</label>
       <label>Panel opacity <output id="panelOpacityValue">0.56</output><input id="panelOpacity" type="range" min="0" max="0.9" step="0.01"></label>
+      <hr>
+      <div class="section-head"><span>SELECTED LAYER</span><span id="layerTypeLabel" class="small-label">No layer</span></div>
+      <p id="layerEmpty" class="helper">Select or add a layer from the left panel to edit its properties.</p>
+      <div id="layerInspectorFields" hidden>
+        <label>Layer name<input id="layerName" type="text" maxlength="100"></label>
+        <label id="layerTextRow">Text content<textarea id="layerText" rows="3" maxlength="500"></textarea></label>
+        <div class="two-col">
+          <label>Fill / text color<input id="layerFill" type="color"></label>
+          <label>Opacity <output id="layerOpacityValue">1.00</output><input id="layerOpacity" type="range" min="0" max="1" step="0.01"></label>
+        </div>
+        <div id="layerTypographyRow" class="two-col">
+          <label>Font size<input id="layerFontSize" type="number" min="8" max="300" step="1"></label>
+          <label>Font weight<select id="layerFontWeight"><option value="400">Regular</option><option value="500">Medium</option><option value="600">Semibold</option><option value="700">Bold</option><option value="800">Extra bold</option><option value="900">Black</option></select></label>
+        </div>
+        <label id="layerTextAlignRow">Text alignment<select id="layerTextAlign"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></label>
+        <div class="two-col">
+          <label>X<input id="layerX" type="number" min="0" max="7680" step="1"></label>
+          <label>Y<input id="layerY" type="number" min="0" max="4320" step="1"></label>
+        </div>
+        <div class="two-col">
+          <label>Width<input id="layerWidth" type="number" min="1" max="7680" step="1"></label>
+          <label>Height<input id="layerHeight" type="number" min="1" max="4320" step="1"></label>
+        </div>
+        <div class="two-col">
+          <label>Rotation °<input id="layerRotation" type="number" min="-360" max="360" step="1"></label>
+          <label>Scale<input id="layerScale" type="number" min="0.01" max="10" step="0.05"></label>
+        </div>
+        <div class="two-col">
+          <label>Start in scene (s)<input id="layerStart" type="number" min="0" step="0.05"></label>
+          <label>Duration (s)<input id="layerDuration" type="number" min="0.1" step="0.05"></label>
+        </div>
+        <label id="layerRadiusRow">Corner radius<input id="layerRadius" type="number" min="0" max="300" step="1"></label>
+        <label class="check-row"><input id="layerVisible" type="checkbox"> Layer visible</label>
+        <div class="layer-actions"><button id="layerMoveUpBtn" class="button small">Move up</button><button id="layerMoveDownBtn" class="button small">Move down</button><button id="layerRemoveBtn" class="button danger-quiet small">Remove</button></div>
+      </div>
       <hr>
       <div class="section-head"><span>ANIMATION</span></div>
       <label>Entrance<select id="enterPreset"><option value="none">None</option><option value="slide-up">Slide up</option><option value="fade">Fade</option><option value="scale-in">Scale in</option></select></label>
