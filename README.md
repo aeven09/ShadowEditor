@@ -88,7 +88,7 @@ node ../../scripts/preflight.mjs .
 npx hyperframes preview
 ```
 
-This is an initial prototype. The in-browser preview is an approximation; always inspect HyperFrames Studio and a draft render before using a graphic in a final video. See [motion-graphics/README.md](motion-graphics/README.md) for details.
+This is an initial prototype. The in-browser preview is an approximation; always inspect HyperFrames Studio and a draft render before using a graphic in a final video. See [motion-graphics/README.md](motion-graphics/README.md) for details. The long-term After Effects-style capability target and phased plan are documented in [docs/MOTION_GRAPHICS_ROADMAP.md](docs/MOTION_GRAPHICS_ROADMAP.md).
 
 ## What you need
 
