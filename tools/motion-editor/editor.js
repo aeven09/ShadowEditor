@@ -3,6 +3,7 @@
 const $ = function (id) { return document.getElementById(id); };
 let project = null;
 let selectedId = null;
+let selectedLayerId = null;
 let dirty = false;
 let saveTimer = null;
 let animationFrame = null;
@@ -11,6 +12,10 @@ let playFrom = 0;
 
 const currentScene = function () {
   return project ? project.scenes.find(function (item) { return item.id === selectedId; }) || project.scenes[0] : null;
+};
+const currentLayer = function () {
+  const scene = currentScene();
+  return scene && Array.isArray(scene.layers) ? scene.layers.find(function (item) { return item.id === selectedLayerId; }) || null : null;
 };
 const endTime = function () {
   return project ? Math.max(0.1, ...project.scenes.map(function (item) { return item.start + item.duration; })) : 0.1;
@@ -106,6 +111,8 @@ function populateForm() {
   $("maxWidth").max = String(project.canvas.width);
   $("canvasLabel").textContent = project.canvas.width + " × " + project.canvas.height;
   $("canvasBadge").textContent = (project.canvas.width > project.canvas.height ? "16:9" : "9:16") + " · " + project.canvas.width + " × " + project.canvas.height;
+  if (!s.layers || !s.layers.some(function (layer) { return layer.id === selectedLayerId; })) selectedLayerId = null;
+  populateLayerForm();
   renderPreview();
   renderKeyframes();
 }
@@ -178,6 +185,126 @@ function entryProgress(scene, localTime) {
   const amount = Math.max(0, Math.min(1, localTime / duration));
   return 1 - Math.pow(1 - amount, 3);
 }
+function renderLayerList() {
+  const list = $("layerList");
+  if (!list) return;
+  list.replaceChildren();
+  const scene = currentScene();
+  const layers = scene && Array.isArray(scene.layers) ? scene.layers : [];
+  if (!layers.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "No overlay layers yet. Add text or a rectangle.";
+    list.append(empty);
+    return;
+  }
+  layers.slice().reverse().forEach(function (layer, reversedIndex) {
+    const actualIndex = layers.length - 1 - reversedIndex;
+    const row = document.createElement("div");
+    row.className = "layer-row";
+    const select = document.createElement("button");
+    select.type = "button";
+    select.className = "layer-item" + (layer.id === selectedLayerId ? " selected" : "");
+    select.textContent = (layer.type === "text" ? "T · " : "▰ · ") + layer.name;
+    select.title = layer.name + (layer.visible === false ? " (hidden)" : "");
+    select.addEventListener("click", function () {
+      selectedLayerId = layer.id;
+      populateLayerForm();
+      renderLayerList();
+      renderPreview();
+    });
+    row.append(select);
+    const up = document.createElement("button");
+    up.type = "button"; up.className = "icon-button layer-order"; up.textContent = "↑"; up.title = "Move layer up";
+    up.disabled = actualIndex === layers.length - 1;
+    up.addEventListener("click", function () { moveLayer(layer.id, 1); });
+    row.append(up);
+    const down = document.createElement("button");
+    down.type = "button"; down.className = "icon-button layer-order"; down.textContent = "↓"; down.title = "Move layer down";
+    down.disabled = actualIndex === 0;
+    down.addEventListener("click", function () { moveLayer(layer.id, -1); });
+    row.append(down);
+    list.append(row);
+  });
+}
+function populateLayerForm() {
+  const layer = currentLayer();
+  $("layerEmpty").hidden = Boolean(layer);
+  $("layerInspectorFields").hidden = !layer;
+  if (!layer) { $("layerTypeLabel").textContent = "No layer"; return; }
+  $("layerName").value = layer.name;
+  $("layerText").value = layer.text || "";
+  $("layerFill").value = layer.fill;
+  $("layerFontSize").value = layer.fontSize || 58;
+  $("layerFontWeight").value = layer.fontWeight || 800;
+  $("layerTextAlign").value = layer.textAlign || "left";
+  $("layerX").value = layer.x; $("layerY").value = layer.y;
+  $("layerWidth").value = layer.width; $("layerHeight").value = layer.height;
+  $("layerOpacity").value = layer.opacity; $("layerOpacityValue").value = Number(layer.opacity).toFixed(2);
+  $("layerRotation").value = layer.rotation; $("layerScale").value = layer.scale;
+  $("layerStart").value = layer.start; $("layerDuration").value = layer.duration;
+  $("layerRadius").value = layer.borderRadius || 0;
+  $("layerVisible").checked = layer.visible !== false;
+  const isText = layer.type === "text";
+  $("layerTextRow").hidden = !isText; $("layerTypographyRow").hidden = !isText;
+  $("layerTextAlignRow").hidden = !isText; $("layerRadiusRow").hidden = isText;
+  $("layerTypeLabel").textContent = isText ? "Text layer" : "Rectangle layer";
+}
+function uniqueLayerId() {
+  const scene = currentScene();
+  const layers = scene && Array.isArray(scene.layers) ? scene.layers : [];
+  let index = 1, candidate;
+  do { candidate = "layer-" + String(index).padStart(3, "0"); index += 1; }
+  while (layers.some(function (layer) { return layer.id === candidate; }));
+  return candidate;
+}
+function addLayer(type) {
+  const scene = currentScene();
+  if (!scene) return;
+  if (!Array.isArray(scene.layers)) scene.layers = [];
+  if (scene.layers.length >= 40) { alert("A scene supports up to 40 visual layers in this MVP."); return; }
+  const n = scene.layers.length + 1;
+  const layer = { id: uniqueLayerId(), type: type, name: type === "text" ? "Text " + n : "Rectangle " + n,
+    start: 0, duration: scene.duration, x: type === "text" ? 220 : 120, y: type === "text" ? 150 : 130,
+    width: type === "text" ? 720 : 760, height: type === "text" ? 100 : 150,
+    opacity: 1, rotation: 0, scale: 1, fill: type === "text" ? "#FFFFFF" : "#E52B32", visible: true };
+  if (type === "text") { layer.text = "Overlay text"; layer.fontSize = 58; layer.fontWeight = 800; layer.textAlign = "left"; }
+  else layer.borderRadius = 0;
+  scene.layers.push(layer);
+  selectedLayerId = layer.id;
+  markDirty();
+  populateForm();
+}
+function moveLayer(id, direction) {
+  const scene = currentScene();
+  if (!scene || !Array.isArray(scene.layers)) return;
+  const index = scene.layers.findIndex(function (layer) { return layer.id === id; });
+  const next = index + direction;
+  if (index < 0 || next < 0 || next >= scene.layers.length) return;
+  const item = scene.layers.splice(index, 1)[0];
+  scene.layers.splice(next, 0, item);
+  markDirty(); renderLayerList(); renderPreview();
+}
+function removeCurrentLayer() {
+  const scene = currentScene();
+  if (!scene || !Array.isArray(scene.layers)) return;
+  const index = scene.layers.findIndex(function (layer) { return layer.id === selectedLayerId; });
+  if (index < 0) return;
+  scene.layers.splice(index, 1);
+  selectedLayerId = scene.layers.length ? scene.layers[scene.layers.length - 1].id : null;
+  markDirty(); populateForm();
+}
+function bindLayerField(id, field, convert, eventName) {
+  $(id).addEventListener(eventName || "input", function () {
+    const layer = currentLayer();
+    if (!layer) return;
+    const raw = $(id).type === "checkbox" ? $(id).checked : $(id).value;
+    layer[field] = convert ? convert(raw) : raw;
+    if (field === "opacity") $("layerOpacityValue").value = Number(layer.opacity).toFixed(2);
+    if (field === "name") renderLayerList();
+    markDirty(); renderPreview();
+  });
+}
 function renderPreview() {
   if (!project) return;
   const canvas = $("previewCanvas");
@@ -245,6 +372,28 @@ function renderPreview() {
     }
     card.append(content);
     canvas.append(card);
+    (Array.isArray(scene.layers) ? scene.layers : []).forEach(function (layer, layerIndex) {
+      if (layer.visible === false || localTime < layer.start || localTime > layer.start + layer.duration) return;
+      const node = document.createElement("div");
+      node.className = "preview-layer preview-layer-" + layer.type;
+      node.dataset.layerId = layer.id;
+      node.style.position = "absolute";
+      node.style.left = (layer.x * scaleX) + "px"; node.style.top = (layer.y * scaleY) + "px";
+      node.style.width = (layer.width * scaleX) + "px"; node.style.height = (layer.height * scaleY) + "px";
+      node.style.opacity = String(layer.opacity);
+      node.style.transform = "rotate(" + layer.rotation + "deg) scale(" + layer.scale + ")";
+      node.style.transformOrigin = "center center"; node.style.zIndex = String(layerIndex + 2);
+      node.style.boxSizing = "border-box"; node.style.overflow = "hidden";
+      node.style.backgroundColor = layer.type === "rect" ? layer.fill : "transparent";
+      node.style.borderRadius = layer.type === "rect" ? (layer.borderRadius || 0) * scaleX + "px" : "0";
+      if (layer.type === "text") {
+        node.textContent = layer.text; node.style.color = layer.fill;
+        node.style.fontSize = (layer.fontSize * scaleX) + "px"; node.style.fontWeight = String(layer.fontWeight);
+        node.style.textAlign = layer.textAlign; node.style.lineHeight = "1.05";
+        node.style.whiteSpace = "pre-wrap"; node.style.overflowWrap = "anywhere";
+      }
+      canvas.append(node);
+    });
   }
   if (!visibleCount) {
     const empty = document.createElement("div");
@@ -258,6 +407,7 @@ function renderPreview() {
   $("halfMark").textContent = (Number($("playhead").max) / 2).toFixed(2) + "s";
   $("endMark").textContent = Number($("playhead").max).toFixed(2) + "s";
   renderTrack();
+  renderLayerList();
 }
 function renderTrack() {
   const track = $("sceneTrack");
@@ -381,6 +531,25 @@ function togglePlayback() {
   animationFrame = requestAnimationFrame(playFrame);
 }
 function bindControls() {
+  bindLayerField("layerName", "name", function (v) { return String(v).slice(0, 100); });
+  bindLayerField("layerText", "text", function (v) { return String(v).slice(0, 500); });
+  bindLayerField("layerFill", "fill");
+  bindLayerField("layerFontSize", "fontSize", Number); bindLayerField("layerFontWeight", "fontWeight", Number);
+  bindLayerField("layerTextAlign", "textAlign", null, "change");
+  bindLayerField("layerX", "x", Number); bindLayerField("layerY", "y", Number);
+  bindLayerField("layerWidth", "width", Number); bindLayerField("layerHeight", "height", Number);
+  bindLayerField("layerOpacity", "opacity", Number); bindLayerField("layerRotation", "rotation", Number);
+  bindLayerField("layerScale", "scale", Number); bindLayerField("layerStart", "start", Number, "change");
+  bindLayerField("layerDuration", "duration", Number, "change"); bindLayerField("layerRadius", "borderRadius", Number);
+  bindLayerField("layerVisible", "visible", null, "change");
+  $("addTextLayerBtn").addEventListener("click", function () { addLayer("text"); });
+  $("addRectLayerBtn").addEventListener("click", function () { addLayer("rect"); });
+  $("layerMoveUpBtn").addEventListener("click", function () { if (selectedLayerId) moveLayer(selectedLayerId, 1); });
+  $("layerMoveDownBtn").addEventListener("click", function () { if (selectedLayerId) moveLayer(selectedLayerId, -1); });
+  $("layerRemoveBtn").addEventListener("click", function () {
+    const layer = currentLayer();
+    if (layer && confirm("Remove layer “" + layer.name + "”?")) removeCurrentLayer();
+  });
   bindField("eyebrow", function (s, v) { s.props.eyebrow = v; });
   bindField("headline", function (s, v) { s.props.headline = v; });
   bindField("highlight", function (s, v) { s.props.highlight = v; });
@@ -409,12 +578,14 @@ function bindControls() {
     s.animation.enter.duration = Math.min(s.animation.enter.duration, s.duration);
     s.animation.exit.duration = Math.min(s.animation.exit.duration, s.duration);
     s.animation.keyframes = s.animation.keyframes.filter(function (frame) { return frame.time <= s.duration; });
+    (s.layers || []).forEach(function (layer) { layer.start = clamp(layer.start, 0, Math.max(0, s.duration - 0.051)); layer.duration = clamp(layer.duration, 0.051, Math.max(0.051, s.duration - layer.start)); });
     $("playhead").max = endTime().toFixed(2);
     markDirty();
     populateForm();
   });
   $("sceneSelect").addEventListener("change", function () {
     selectedId = $("sceneSelect").value;
+    selectedLayerId = null;
     const scene = currentScene();
     if (scene) $("playhead").value = String(scene.start);
     populateForm();
@@ -489,6 +660,7 @@ function bindControls() {
     if (!confirm("Remove the scene “" + s.props.headline + "”?")) return;
     project.scenes = project.scenes.filter(function (item) { return item.id !== s.id; });
     selectedId = project.scenes[0].id;
+    selectedLayerId = null;
     markDirty();
     populateForm();
   });
@@ -498,7 +670,7 @@ function bindControls() {
       $("copyStatus").textContent = "Write an editing request first.";
       return;
     }
-    const instruction = "Update motion-graphics/project.json in my ShadowEditor repository. Apply this documentary motion-graphics change: " + prompt + "\nPreserve unrelated settings and other scenes. Use only supported headline-card properties and animation presets. Then run node tools/motion-graphics.mjs validate and node tools/motion-graphics.mjs build. Do not edit anything inside kit/. After building, tell me to run HyperFrames lint and preview.";
+    const instruction = "Update motion-graphics/project.json in my ShadowEditor repository. Apply this documentary motion-graphics change: " + prompt + "\nPreserve unrelated settings and other scenes. Supported visual layer types are text and rect; each has its own timing, position, dimensions, opacity, rotation, scale, fill, and visibility. Preserve backward compatibility. Then run node tools/motion-graphics.mjs validate and node tools/motion-graphics.mjs build. Do not edit anything inside kit/. After building, tell me to run HyperFrames lint and preview.";
     try {
       await navigator.clipboard.writeText(instruction);
       $("copyStatus").textContent = "Instruction copied. Paste it into your coding agent opened in the ShadowEditor folder.";
