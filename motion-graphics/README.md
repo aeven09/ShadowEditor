@@ -38,6 +38,7 @@ The generated project is ignored with the rest of `kit/`. The build command refu
 - Accent color, font size, placement, max width, and translucent panel.
 - Entrance and exit presets.
 - Basic local keyframes for X offset, Y offset, scale, and opacity, with per-keyframe easing (linear, power easing, and back-out).
+- Independent text and rectangle overlay layers with scene-local timing, visibility, ordering, position, dimensions, fill, opacity, rotation, and scale.
 - One local editor server shared by AI prompt changes and manual adjustments.
 
-The preview inside the visual editor is an approximation. HyperFrames lint, Studio preview, and a draft render remain required before using a composition in a final video.
+The preview inside the visual editor is an approximation. Text/rectangle layers are the first layer types; image, vector, matte, 3D camera, and per-layer keyframe animation are not implemented in this step. HyperFrames lint, Studio preview, and a draft render remain required before using a composition in a final video.
