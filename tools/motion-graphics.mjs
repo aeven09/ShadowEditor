@@ -22,6 +22,8 @@ const EXIT_PRESETS = new Set(["none", "fade", "slide-down"]);
 const EASES = new Set(["none", "power2.out", "power3.out", "back.out(1.4)", "power2.inOut"]);
 const KEY_PROPS = new Set(["offsetX", "offsetY", "scale", "opacity"]);
 const KEY_EASES = new Set(["none", "power1.in", "power1.out", "power2.inOut", "power3.out", "back.out(1.4)"]);
+const LAYER_TYPES = new Set(["text", "rect"]);
+const TEXT_ALIGNS = new Set(["left", "center", "right"]);
 
 const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
 const isFiniteNumber = value => typeof value === "number" && Number.isFinite(value);
@@ -110,6 +112,42 @@ export function validateProject(project) {
       if (isObject(a.enter) && isFiniteNumber(a.enter.duration) && a.enter.duration > scene.duration) errors.push(label + " entrance duration cannot exceed scene duration.");
       if (isObject(a.exit) && isFiniteNumber(a.exit.duration) && a.exit.duration > scene.duration) errors.push(label + " exit duration cannot exceed scene duration.");
     }
+    if (scene.layers !== undefined) {
+      if (!Array.isArray(scene.layers)) errors.push(label + ".layers must be an array when provided.");
+      else {
+        if (scene.layers.length > 40) errors.push(label + " cannot contain more than 40 visual layers.");
+        const layerIds = new Set();
+        scene.layers.forEach((layer, layerIndex) => {
+          const layerLabel = label + ".layers[" + layerIndex + "]";
+          if (!isObject(layer)) { errors.push(layerLabel + " must be an object."); return; }
+          if (typeof layer.id !== "string" || !ID_RE.test(layer.id)) errors.push(layerLabel + ".id must be a safe lowercase slug.");
+          else if (layerIds.has(layer.id)) errors.push(layerLabel + ".id must be unique within its scene.");
+          else layerIds.add(layer.id);
+          if (!LAYER_TYPES.has(layer.type)) errors.push(layerLabel + ".type must be text or rect.");
+          stringField(errors, layerLabel + ".name", layer.name, 100, true);
+          const maxLayerTime = isFiniteNumber(scene.duration) ? scene.duration : 300;
+          range(errors, layerLabel + ".start", layer.start, 0, maxLayerTime);
+          range(errors, layerLabel + ".duration", layer.duration, 0.051, maxLayerTime);
+          if (isFiniteNumber(layer.start) && isFiniteNumber(layer.duration) && isFiniteNumber(scene.duration) && layer.start + layer.duration > scene.duration + 0.000001) errors.push(layerLabel + " start + duration cannot exceed its scene duration.");
+          range(errors, layerLabel + ".x", layer.x, 0, isObject(project.canvas) && isFiniteNumber(project.canvas.width) ? project.canvas.width : 7680);
+          range(errors, layerLabel + ".y", layer.y, 0, isObject(project.canvas) && isFiniteNumber(project.canvas.height) ? project.canvas.height : 4320);
+          range(errors, layerLabel + ".width", layer.width, 0.01, isObject(project.canvas) && isFiniteNumber(project.canvas.width) ? project.canvas.width : 7680);
+          range(errors, layerLabel + ".height", layer.height, 0.01, isObject(project.canvas) && isFiniteNumber(project.canvas.height) ? project.canvas.height : 4320);
+          range(errors, layerLabel + ".opacity", layer.opacity, 0, 1);
+          range(errors, layerLabel + ".rotation", layer.rotation, -360, 360);
+          range(errors, layerLabel + ".scale", layer.scale, 0.01, 10);
+          if (typeof layer.fill !== "string" || !HEX_RE.test(layer.fill)) errors.push(layerLabel + ".fill must be a six-digit hex color.");
+          if (typeof layer.visible !== "boolean") errors.push(layerLabel + ".visible must be boolean.");
+          if (layer.type === "text") {
+            stringField(errors, layerLabel + ".text", layer.text, 500, true);
+            range(errors, layerLabel + ".fontSize", layer.fontSize, 8, 300);
+            if (!Number.isInteger(layer.fontWeight) || layer.fontWeight < 100 || layer.fontWeight > 900) errors.push(layerLabel + ".fontWeight must be an integer from 100 to 900.");
+            if (!TEXT_ALIGNS.has(layer.textAlign)) errors.push(layerLabel + ".textAlign is unsupported.");
+          }
+          if (layer.type === "rect") range(errors, layerLabel + ".borderRadius", layer.borderRadius, 0, 300);
+        });
+      }
+    }
   });
   return errors;
 }
@@ -129,6 +167,23 @@ function num(value) {
   if (!isFiniteNumber(value)) throw new TypeError("Expected a finite number during composition generation.");
   return String(Math.round(value * 1000) / 1000);
 }
+function layerMarkup(layer, scene, sceneIndex, layerIndex) {
+  if (layer.visible === false) return "";
+  const style = [
+    "left:" + num(layer.x) + "px", "top:" + num(layer.y) + "px",
+    "width:" + num(layer.width) + "px", "height:" + num(layer.height) + "px",
+    "opacity:" + num(layer.opacity),
+    "transform:rotate(" + num(layer.rotation) + "deg) scale(" + num(layer.scale) + ")",
+    "background:" + (layer.type === "rect" ? layer.fill : "transparent"),
+    "color:" + layer.fill,
+    "font-size:" + (layer.type === "text" ? num(layer.fontSize) : "1") + "px",
+    "font-weight:" + (layer.type === "text" ? layer.fontWeight : 400),
+    "text-align:" + (layer.type === "text" ? layer.textAlign : "left"),
+    "border-radius:" + (layer.type === "rect" ? num(layer.borderRadius) : "0") + "px"
+  ].join(";");
+  const content = layer.type === "text" ? linesHtml(layer.text) : "";
+  return '<div id="layer-' + scene.id + '-' + layer.id + '" class="se-layer clip se-layer-' + layer.type + '" data-start="' + num(scene.start + layer.start) + '" data-duration="' + num(layer.duration) + '" data-track-index="' + (100 + sceneIndex * 40 + layerIndex) + '" style="' + style + '">' + content + "</div>";
+}
 function cardMarkup(scene, index) {
   const p = scene.props;
   return [
@@ -139,7 +194,9 @@ function cardMarkup(scene, index) {
     '<div class="doc-rule"></div>',
     '<h1 class="doc-headline" data-slot="headline">' + headlineHtml(p.headline, p.highlight) + "</h1>",
     p.subheadline ? '<p class="doc-subheadline" data-slot="subheadline">' + linesHtml(p.subheadline) + "</p>" : "",
-    "</div></div></div></div>"
+    "</div></div></div>",
+    (scene.layers || []).map((layer, layerIndex) => layerMarkup(layer, scene, index, layerIndex)).join("\n"),
+    "</div>"
   ].join("\n");
 }
 export function renderComposition(project) {
@@ -210,6 +267,8 @@ export function renderComposition(project) {
     ".doc-ambient { position:absolute; inset:0; opacity:.42; background-image:linear-gradient(rgba(var(--doc-ink-rgb),.06) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--doc-ink-rgb),.06) 1px,transparent 1px); background-size:80px 80px; }",
     ".doc-ambient:after { content:''; position:absolute; width:520px; height:520px; right:-140px; top:-220px; border:1px solid rgba(var(--doc-red-rgb),.28); border-radius:50%; box-shadow:0 0 0 44px rgba(229,43,50,.025),0 0 0 88px rgba(229,43,50,.02); }",
     ".scene-clip { position:absolute; inset:0; width:100%; height:100%; overflow:hidden; }",
+    ".se-layer { position:absolute; box-sizing:border-box; overflow:hidden; white-space:pre-wrap; transform-origin:center center; }",
+    ".se-layer-text { line-height:1.05; overflow-wrap:anywhere; }"
     ".scene-content { display:flex; flex-direction:column; width:100%; height:100%; padding:var(--doc-y) max(0px,calc(100% - var(--doc-x) - var(--doc-max-width))) 0 var(--doc-x); gap:0; }",
     ".doc-card { position:relative; width:100%; max-width:var(--doc-max-width); min-width:0; color:var(--doc-ink); isolation:isolate; }",
     ".doc-card:before { content:''; position:absolute; z-index:-1; inset:-30px -32px -28px; border-left:6px solid var(--doc-accent); background:rgba(var(--doc-panel-rgb),var(--doc-panel-opacity)); box-shadow:0 22px 75px rgba(0,0,0,.28); }",
