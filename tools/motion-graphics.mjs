@@ -21,6 +21,7 @@ const ENTER_PRESETS = new Set(["none", "slide-up", "fade", "scale-in"]);
 const EXIT_PRESETS = new Set(["none", "fade", "slide-down"]);
 const EASES = new Set(["none", "power2.out", "power3.out", "back.out(1.4)", "power2.inOut"]);
 const KEY_PROPS = new Set(["offsetX", "offsetY", "scale", "opacity"]);
+const KEY_EASES = new Set(["none", "power1.in", "power1.out", "power2.inOut", "power3.out", "back.out(1.4)"]);
 
 const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
 const isFiniteNumber = value => typeof value === "number" && Number.isFinite(value);
@@ -96,6 +97,7 @@ export function validateProject(project) {
         if (!isObject(frame)) { errors.push(keyLabel + " must be an object."); return; }
         range(errors, keyLabel + ".time", frame.time, 0, isFiniteNumber(scene.duration) ? scene.duration : 300);
         if (!KEY_PROPS.has(frame.property)) errors.push(keyLabel + ".property is unsupported.");
+        if (frame.ease !== undefined && !KEY_EASES.has(frame.ease)) errors.push(keyLabel + ".ease is unsupported.");
         range(errors, keyLabel + ".value", frame.value, -4000, 4000);
         if (frame.property === "scale" && isFiniteNumber(frame.value) && (frame.value < 0.01 || frame.value > 10)) errors.push(keyLabel + ".scale must be between 0.01 and 10.");
         if (frame.property === "opacity" && isFiniteNumber(frame.value) && (frame.value < 0 || frame.value > 1)) errors.push(keyLabel + ".opacity must be between 0 and 1.");
@@ -186,7 +188,7 @@ export function renderComposition(project) {
         const tweenTime = scene.start + previousTime;
         const delta = frame.time - previousTime;
         if (delta <= 0) html.push("tl.set(" + JSON.stringify(motionTarget) + ", {" + gsapProperty + ":" + num(frame.value) + "}, " + num(scene.start + frame.time) + ");");
-        else html.push("tl.to(" + JSON.stringify(motionTarget) + ", {" + gsapProperty + ":" + num(frame.value) + ",duration:" + num(delta) + ',ease:"none"}, ' + num(tweenTime) + ");");
+        else html.push("tl.to(" + JSON.stringify(motionTarget) + ", {" + gsapProperty + ":" + num(frame.value) + ",duration:" + num(delta) + ",ease:" + JSON.stringify(frame.ease || "none") + "}, " + num(tweenTime) + ");");
         previousTime = frame.time;
       }
     }

@@ -37,7 +37,7 @@ The generated project is ignored with the rest of `kit/`. The build command refu
 - Eyebrow, headline, one highlighted phrase, and supporting line.
 - Accent color, font size, placement, max width, and translucent panel.
 - Entrance and exit presets.
-- Basic local keyframes for X offset, Y offset, scale, and opacity.
+- Basic local keyframes for X offset, Y offset, scale, and opacity, with per-keyframe easing (linear, power easing, and back-out).
 - One local editor server shared by AI prompt changes and manual adjustments.
 
 The preview inside the visual editor is an approximation. HyperFrames lint, Studio preview, and a draft render remain required before using a composition in a final video.

@@ -27,6 +27,19 @@ test("rejects keyframes outside the scene duration", () => {
   assert.ok(validateProject(project).some(error => error.includes(".time")));
 });
 
+test("rejects unsupported per-keyframe easing", () => {
+  const project = readProject();
+  project.scenes[0].animation.keyframes[0].ease = "javascript:alert(1)";
+  assert.ok(validateProject(project).some(error => error.includes(".ease is unsupported")));
+});
+
+test("preserves selected per-keyframe easing in generated GSAP tweens", () => {
+  const project = readProject();
+  project.scenes[0].animation.keyframes[0].ease = "power3.out";
+  const output = renderComposition(project);
+  assert.match(output.html, /ease:"power3\.out"/);
+});
+
 test("escapes markup in headline and subtitle", () => {
   assert.equal(htmlEscape('<script>alert("x")</script>'), "&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;");
   const project = readProject();
@@ -51,4 +64,12 @@ import { readFileSync } from "node:fs";
 test("visual editor playback button is wired", () => {
   const editorSource = readFileSync(new URL("../tools/motion-editor/editor.js", import.meta.url), "utf8");
   assert.match(editorSource, /\$\("playBtn"\)\.addEventListener\("click", togglePlayback\)/);
+});
+
+test("visual editor exposes per-keyframe easing and applies it in preview", () => {
+  const editorSource = readFileSync(new URL("../tools/motion-editor/editor.js", import.meta.url), "utf8");
+  const editorHtml = readFileSync(new URL("../tools/motion-editor/index.html", import.meta.url), "utf8");
+  assert.match(editorHtml, /id="kfEase"/);
+  assert.match(editorSource, /easeProgress\(progress, frame\.ease \|\| "none"\)/);
+  assert.match(editorSource, /value: value, ease: \$\("kfEase"\)\.value/);
 });

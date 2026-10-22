@@ -69,6 +69,16 @@
             "opacity"
           ]
         },
+        "ease": {
+          "enum": [
+            "none",
+            "power1.in",
+            "power1.out",
+            "power2.inOut",
+            "power3.out",
+            "back.out(1.4)"
+          ]
+        },
         "value": {
           "type": "number"
         }

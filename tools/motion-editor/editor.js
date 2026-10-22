@@ -133,6 +133,18 @@ function addHighlightedText(target, text, highlight) {
   target.append(span);
   addLines(target, source.slice(index + phrase.length));
 }
+function easeProgress(progress, ease) {
+  const t = Math.max(0, Math.min(1, progress));
+  if (ease === "power1.in") return t * t;
+  if (ease === "power1.out") return 1 - Math.pow(1 - t, 2);
+  if (ease === "power2.inOut") return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  if (ease === "power3.out") return 1 - Math.pow(1 - t, 3);
+  if (ease === "back.out(1.4)") {
+    const c1 = 1.4, c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  }
+  return t;
+}
 function keyframeValues(scene, localTime) {
   const values = { offsetX: 0, offsetY: 0, scale: 1, opacity: 1 };
   const grouped = new Map();
@@ -149,7 +161,8 @@ function keyframeValues(scene, localTime) {
       if (localTime <= frame.time) {
         const span = frame.time - previousTime;
         const progress = span <= 0 ? 1 : Math.max(0, Math.min(1, (localTime - previousTime) / span));
-        values[property] = previousValue + (frame.value - previousValue) * progress;
+        const eased = easeProgress(progress, frame.ease || "none");
+        values[property] = previousValue + (frame.value - previousValue) * eased;
         break;
       }
       previousTime = frame.time;
@@ -287,7 +300,7 @@ function renderKeyframes() {
   frames.forEach(function (frame) {
     const pill = document.createElement("div");
     pill.className = "kf-pill";
-    pill.append(document.createTextNode(frame.time.toFixed(2) + "s · " + frame.property + "=" + frame.value));
+    pill.append(document.createTextNode(frame.time.toFixed(2) + "s · " + frame.property + "=" + frame.value + (frame.ease && frame.ease !== "none" ? " · " + frame.ease : "")));
     const remove = document.createElement("button");
     remove.type = "button";
     remove.textContent = "×";
@@ -442,7 +455,7 @@ function bindControls() {
     s.animation.keyframes = s.animation.keyframes.filter(function (item) {
       return !(item.property === property && Math.abs(item.time - time) < 0.001);
     });
-    s.animation.keyframes.push({ time: Number(time.toFixed(3)), property: property, value: value });
+    s.animation.keyframes.push({ time: Number(time.toFixed(3)), property: property, value: value, ease: $("kfEase").value });
     markDirty();
     renderKeyframes();
     renderPreview();
