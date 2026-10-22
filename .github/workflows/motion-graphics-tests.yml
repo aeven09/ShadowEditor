@@ -57,3 +57,13 @@ jobs:
         run: |
           npx hyperframes lint
           node ../../scripts/preflight.mjs .
+      - name: Render draft MP4
+        working-directory: kit/video-projects/shadoweditor-documentary-headline
+        run: npx hyperframes render --quality draft --output renders/headline-draft.mp4
+      - name: Upload draft render artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadoweditor-headline-draft
+          path: kit/video-projects/shadoweditor-documentary-headline/renders/headline-draft.mp4
+          if-no-files-found: error
+          retention-days: 7
