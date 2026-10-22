@@ -122,6 +122,18 @@ any other paid API). The default is to use none of them.
 - "Horizontal version" or "for YouTube": compose 1920x1080 with its own framing and text
   placement, as `short-form-edit` describes. Not just a crop.
 
+
+## Documentary motion graphics (ShadowEditor extension)
+
+When the user asks for motion graphics, animated documentary titles, or manual animation controls:
+1. Read `motion-graphics/README.md`, `motion-graphics/project.schema.json`, and `motion-graphics/styles/documentary-red/DESIGN.md`.
+2. Treat `motion-graphics/project.json` as the shared source of truth for AI edits and the visual editor. Change only the requested properties and preserve unrelated scenes.
+3. Use the supported `headline` scene type and the documented presets until new scene types are implemented and tested.
+4. Run `node tools/motion-graphics.mjs validate` before `node tools/motion-graphics.mjs build`.
+5. For render verification, enter `kit/video-projects/shadoweditor-documentary-headline/`; run `npx hyperframes lint`, `node ../../scripts/preflight.mjs .`, then `npx hyperframes preview`. Only claim an MP4 render succeeded if you actually run and inspect the render.
+6. Do not edit anything inside `kit/`: it is installed from the pinned upstream Herk Edit Kit and can be replaced by setup. The generated motion graphics project lives there as build output and can be regenerated from the shared JSON.
+7. The local visual editor can generate a prompt to paste into the coding agent, but does not itself call an AI service.
+
 ## Never
 
 - Post, upload, or send a video anywhere.

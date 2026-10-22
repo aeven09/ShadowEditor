@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShadowEditor — Documentary Motion Graphics</title>
+  <link rel="stylesheet" href="/editor.css">
+  <script src="/editor.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">S</span>
+      <div><strong>ShadowEditor</strong><small>DOCUMENTARY MOTION GRAPHICS</small></div>
+    </div>
+    <div class="top-actions">
+      <span id="saveStatus" class="status">Loading project…</span>
+      <button id="reloadBtn" class="button quiet">Reload</button>
+      <button id="saveBtn" class="button">Save</button>
+      <button id="buildBtn" class="button primary">Build composition</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="sidebar">
+      <div class="section-head"><span>SCENES</span><button id="addSceneBtn" class="icon-button" title="Add scene">+</button></div>
+      <select id="sceneSelect" aria-label="Select scene"></select>
+      <div class="scene-meta"><span id="sceneIdLabel">headline-001</span><button id="duplicateSceneBtn" class="button quiet small">Duplicate</button></div>
+      <button id="removeSceneBtn" class="button danger-quiet small wide">Remove selected scene</button>
+      <hr>
+      <div class="section-head"><span>AI PROMPT</span></div>
+      <p class="helper">Write an editing request. Copy the instruction into the coding agent that is open in your ShadowEditor folder. This page does not call an AI service.</p>
+      <textarea id="promptInput" rows="4" placeholder="Make the headline more dramatic and shorten its entrance."></textarea>
+      <button id="copyPromptBtn" class="button wide">Copy AI instruction</button>
+      <textarea id="promptOutput" class="prompt-output" rows="5" readonly hidden aria-label="AI instruction fallback"></textarea>
+      <p id="copyStatus" class="helper"></p>
+      <hr>
+      <div class="section-head"><span>PROJECT</span></div>
+      <p class="helper">Canvas: <strong id="canvasLabel">1920 × 1080</strong><br>One shared project file for AI and manual edits.</p>
+    </aside>
+
+    <section class="center">
+      <div class="preview-heading">
+        <div><span class="eyebrow-label">LIVE PREVIEW</span><h1 id="previewTitle">THE PERFECT HEIST</h1></div>
+        <span id="canvasBadge" class="ratio-badge">16:9 · 1920 × 1080</span>
+      </div>
+      <div class="preview-wrap"><div id="previewCanvas" class="preview-canvas" aria-label="Motion graphics preview"></div></div>
+      <div class="timeline-panel">
+        <div class="timeline-heading"><strong>Timeline</strong><div><button id="playBtn" class="button small">Play preview</button> <span id="timeLabel">00:00.00</span></div></div>
+        <input id="playhead" type="range" min="0" max="4.2" step="0.01" value="0" aria-label="Timeline playhead">
+        <div class="ruler"><span>0s</span><span id="halfMark">2.1s</span><span id="endMark">4.2s</span></div>
+        <div id="sceneTrack" class="scene-track"></div>
+        <div class="keyframes-heading"><strong>Keyframes</strong><span id="keyframeCount">0 keys</span></div>
+        <div class="keyframe-controls">
+          <label>Property<select id="kfProperty"><option value="offsetX">X offset</option><option value="offsetY">Y offset</option><option value="scale">Scale</option><option value="opacity">Opacity</option></select></label>
+          <label>Value<input id="kfValue" type="number" value="0" step="0.05"></label>
+          <button id="addKeyframeBtn" class="button small">Add at playhead</button>
+        </div>
+        <div id="keyframeList" class="keyframe-list"></div>
+      </div>
+    </section>
+
+    <aside class="inspector">
+      <div class="section-head"><span>GRAPHIC PROPERTIES</span></div>
+      <label>Eyebrow<input id="eyebrow" type="text" maxlength="100"></label>
+      <label>Headline<textarea id="headline" rows="3" maxlength="180"></textarea></label>
+      <label>Highlighted phrase<input id="highlight" type="text" maxlength="180"></label>
+      <label>Subheadline<textarea id="subheadline" rows="2" maxlength="220"></textarea></label>
+      <div class="two-col">
+        <label>Accent<input id="accentColor" type="color"></label>
+        <label>Font size<input id="fontSize" type="number" min="18" max="300" step="1"></label>
+      </div>
+      <div class="two-col">
+        <label>X position<input id="x" type="number" min="0" max="7680" step="1"></label>
+        <label>Y position<input id="y" type="number" min="0" max="4320" step="1"></label>
+      </div>
+      <label>Maximum text width<input id="maxWidth" type="number" min="160" max="7680" step="10"></label>
+      <label class="check-row"><input id="showPanel" type="checkbox"> Show dark panel</label>
+      <label>Panel opacity <output id="panelOpacityValue">0.56</output><input id="panelOpacity" type="range" min="0" max="0.9" step="0.01"></label>
+      <hr>
+      <div class="section-head"><span>ANIMATION</span></div>
+      <label>Entrance<select id="enterPreset"><option value="none">None</option><option value="slide-up">Slide up</option><option value="fade">Fade</option><option value="scale-in">Scale in</option></select></label>
+      <div class="two-col">
+        <label>Enter duration<input id="enterDuration" type="number" min="0" max="5" step="0.05"></label>
+        <label>Ease<select id="enterEase"><option value="power3.out">Power 3 out</option><option value="power2.out">Power 2 out</option><option value="back.out(1.4)">Back out</option><option value="power2.inOut">Power 2 in/out</option><option value="none">Linear</option></select></label>
+      </div>
+      <label>Exit<select id="exitPreset"><option value="none">None</option><option value="fade">Fade</option><option value="slide-down">Slide down</option></select></label>
+      <label>Exit duration<input id="exitDuration" type="number" min="0" max="5" step="0.05"></label>
+      <label>Scene start (s)<input id="sceneStart" type="number" min="0" max="86400" step="0.05"></label>
+      <label>Scene duration (s)<input id="sceneDuration" type="number" min="0.1" max="300" step="0.05"></label>
+      <p class="helper">This MVP edits headline cards. Character profiles, maps, evidence cards, and other graphic types can follow the same project format.</p>
+    </aside>
+  </main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+name: Documentary motion graphics MVP
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "motion-graphics/**"
+      - "tools/motion-graphics.mjs"
+      - "tools/motion-editor-server.mjs"
+      - "tools/motion-editor/**"
+      - "tests/motion-graphics.test.mjs"
+      - ".agents/skills/free247editor/SKILL.md"
+      - "README.md"
+      - ".github/workflows/motion-graphics-tests.yml"
+  pull_request:
+    paths:
+      - "motion-graphics/**"
+      - "tools/motion-graphics.mjs"
+      - "tools/motion-editor-server.mjs"
+      - "tools/motion-editor/**"
+      - "tests/motion-graphics.test.mjs"
+      - ".agents/skills/free247editor/SKILL.md"
+      - "README.md"
+      - ".github/workflows/motion-graphics-tests.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check JavaScript syntax
+        run: |
+          node --check tools/motion-graphics.mjs
+          node --check tools/motion-editor-server.mjs
+          node --check tools/motion-editor/editor.js
+          node --check tests/motion-graphics.test.mjs
+      - name: Run motion graphics tests
+        run: node --test tests/motion-graphics.test.mjs
