@@ -186,7 +186,7 @@ export function renderComposition(project) {
         const tweenTime = scene.start + previousTime;
         const delta = frame.time - previousTime;
         if (delta <= 0) html.push("tl.set(" + JSON.stringify(motionTarget) + ", {" + gsapProperty + ":" + num(frame.value) + "}, " + num(scene.start + frame.time) + ");");
-        else html.push("tl.to(" + JSON.stringify(motionTarget) + ", {" + gsapProperty + ":" + num(frame.value) + ",duration:" + num(delta) + ',ease:"none"}, ' + num(tweenTime) + ");');
+        else html.push("tl.to(" + JSON.stringify(motionTarget) + ", {" + gsapProperty + ":" + num(frame.value) + ",duration:" + num(delta) + ',ease:"none"}, ' + num(tweenTime) + ");");
         previousTime = frame.time;
       }
     }
