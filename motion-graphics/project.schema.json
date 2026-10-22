@@ -253,6 +253,126 @@
               }
             }
           }
+        },
+        "layers": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "$ref": "#/$defs/visualLayer"
+          }
+        }
+      }
+    },
+    "visualLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "name",
+        "start",
+        "duration",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "rotation",
+        "scale",
+        "fill",
+        "visible"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "rect"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "duration": {
+          "type": "number",
+          "exclusiveMinimum": 0.05
+        },
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 7680
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4320
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 7680
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 4320
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rotation": {
+          "type": "number",
+          "minimum": -360,
+          "maximum": 360
+        },
+        "scale": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 10
+        },
+        "fill": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "visible": {
+          "type": "boolean"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "fontSize": {
+          "type": "number",
+          "minimum": 8,
+          "maximum": 300
+        },
+        "fontWeight": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 900
+        },
+        "textAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "borderRadius": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 300
         }
       }
     }
