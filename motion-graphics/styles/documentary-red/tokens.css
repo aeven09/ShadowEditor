@@ -1,0 +1,13 @@
+:root {
+  --doc-bg: #101013;
+  --doc-ink: #f5f2ed;
+  --doc-muted: #c1bdba;
+  --doc-red: #e52b32;
+  --doc-red-rgb: 229, 43, 50;
+  --doc-ink-rgb: 245, 242, 237;
+  --doc-panel-rgb: 8, 9, 12;
+  --doc-yellow: #f0c75e;
+  --doc-panel: rgba(9, 9, 12, 0.56);
+  --doc-font: Inter, "Arial Narrow", Arial, sans-serif;
+  --doc-label-font: "Arial Narrow", Arial, sans-serif;
+}

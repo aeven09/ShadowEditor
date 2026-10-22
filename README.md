@@ -64,6 +64,32 @@ YouTube and it gets its own framing and text placement.
 | Sound | Sound effects and a music bed from files you put in `my-sounds` |
 | Learning | Your notes are saved as rules in `my-rules.md` and applied every time |
 
+
+## Documentary motion graphics (experimental extension)
+
+ShadowEditor includes an experimental, local-only motion graphics editor for documentary headline cards, now with optional text and rectangle overlay layers. Layers can have their own timing, position, size, opacity, rotation, scale, fill, and visibility. The same validated project file is used by the local browser editor and the HyperFrames/GSAP generator. This is an early foundation—not a full After Effects replacement; image layers, per-layer keyframe animation, 3D camera, motion blur, and tracking remain roadmap work. See [the motion graphics roadmap](docs/MOTION_GRAPHICS_ROADMAP.md).
+
+After `node setup.mjs` completes, start the editor from the repository root:
+
+```sh
+node tools/motion-editor-server.mjs
+```
+
+Open `http://127.0.0.1:4177`. Edit text, colors, position, scene timing, entrance/exit presets, and basic keyframes, or copy an editing instruction into the coding agent. The editor does not call an external AI service.
+
+To validate and generate the HyperFrames project:
+
+```sh
+node tools/motion-graphics.mjs validate
+node tools/motion-graphics.mjs build
+cd kit/video-projects/shadoweditor-documentary-headline
+npx hyperframes lint
+node ../../scripts/preflight.mjs .
+npx hyperframes preview
+```
+
+This is an initial prototype. The in-browser preview is an approximation; always inspect HyperFrames Studio and a draft render before using a graphic in a final video. See [motion-graphics/README.md](motion-graphics/README.md) for details. The long-term After Effects-style capability target and phased plan are documented in [docs/MOTION_GRAPHICS_ROADMAP.md](docs/MOTION_GRAPHICS_ROADMAP.md).
+
 ## What you need
 
 - **An AI coding agent that can run terminal commands**, such as Claude Code (paid Claude

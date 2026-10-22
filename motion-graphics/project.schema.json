@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ShadowEditor Documentary Motion Graphics Project",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "canvas",
+    "scenes"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "canvas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height",
+        "fps"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 320,
+          "maximum": 7680
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 320,
+          "maximum": 4320
+        },
+        "fps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 60,
+      "items": {
+        "$ref": "#/$defs/headlineScene"
+      }
+    }
+  },
+  "$defs": {
+    "keyframe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "time",
+        "property",
+        "value"
+      ],
+      "properties": {
+        "time": {
+          "type": "number",
+          "minimum": 0
+        },
+        "property": {
+          "enum": [
+            "offsetX",
+            "offsetY",
+            "scale",
+            "opacity"
+          ]
+        },
+        "ease": {
+          "enum": [
+            "none",
+            "power1.in",
+            "power1.out",
+            "power2.inOut",
+            "power3.out",
+            "back.out(1.4)"
+          ]
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "headlineScene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "start",
+        "duration",
+        "props",
+        "animation"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+        },
+        "type": {
+          "const": "headline"
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 86400
+        },
+        "duration": {
+          "type": "number",
+          "exclusiveMinimum": 0.05,
+          "maximum": 300
+        },
+        "props": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "eyebrow",
+            "headline",
+            "highlight",
+            "subheadline",
+            "accentColor",
+            "fontSize",
+            "x",
+            "y",
+            "maxWidth",
+            "showPanel",
+            "panelOpacity"
+          ],
+          "properties": {
+            "eyebrow": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "headline": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 180
+            },
+            "highlight": {
+              "type": "string",
+              "maxLength": 180
+            },
+            "subheadline": {
+              "type": "string",
+              "maxLength": 220
+            },
+            "accentColor": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "fontSize": {
+              "type": "number",
+              "minimum": 18,
+              "maximum": 300
+            },
+            "x": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 7680
+            },
+            "y": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 4320
+            },
+            "maxWidth": {
+              "type": "number",
+              "minimum": 160,
+              "maximum": 7680
+            },
+            "showPanel": {
+              "type": "boolean"
+            },
+            "panelOpacity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.9
+            }
+          }
+        },
+        "animation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enter",
+            "exit",
+            "keyframes"
+          ],
+          "properties": {
+            "enter": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "preset",
+                "duration",
+                "ease"
+              ],
+              "properties": {
+                "preset": {
+                  "enum": [
+                    "none",
+                    "slide-up",
+                    "fade",
+                    "scale-in"
+                  ]
+                },
+                "duration": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                "ease": {
+                  "enum": [
+                    "none",
+                    "power2.out",
+                    "power3.out",
+                    "back.out(1.4)",
+                    "power2.inOut"
+                  ]
+                }
+              }
+            },
+            "exit": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "preset",
+                "duration"
+              ],
+              "properties": {
+                "preset": {
+                  "enum": [
+                    "none",
+                    "fade",
+                    "slide-down"
+                  ]
+                },
+                "duration": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                }
+              }
+            },
+            "keyframes": {
+              "type": "array",
+              "maxItems": 200,
+              "items": {
+                "$ref": "#/$defs/keyframe"
+              }
+            }
+          }
+        },
+        "layers": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "$ref": "#/$defs/visualLayer"
+          }
+        }
+      }
+    },
+    "visualLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "name",
+        "start",
+        "duration",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "rotation",
+        "scale",
+        "fill",
+        "visible"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "rect"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "duration": {
+          "type": "number",
+          "exclusiveMinimum": 0.05
+        },
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 7680
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4320
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 7680
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 4320
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rotation": {
+          "type": "number",
+          "minimum": -360,
+          "maximum": 360
+        },
+        "scale": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 10
+        },
+        "fill": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "visible": {
+          "type": "boolean"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "fontSize": {
+          "type": "number",
+          "minimum": 8,
+          "maximum": 300
+        },
+        "fontWeight": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 900
+        },
+        "textAlign": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "borderRadius": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 300
+        }
+      }
+    }
+  }
+}

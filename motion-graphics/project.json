@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "scenes": [
+    {
+      "id": "headline-001",
+      "type": "headline",
+      "start": 0,
+      "duration": 4.2,
+      "props": {
+        "eyebrow": "THE INVESTIGATION",
+        "headline": "THE PERFECT HEIST",
+        "highlight": "HEIST",
+        "subheadline": "How a vault became a crime scene",
+        "accentColor": "#E52B32",
+        "fontSize": 104,
+        "x": 150,
+        "y": 315,
+        "maxWidth": 1500,
+        "showPanel": true,
+        "panelOpacity": 0.56
+      },
+      "animation": {
+        "enter": {
+          "preset": "slide-up",
+          "duration": 0.55,
+          "ease": "power3.out"
+        },
+        "exit": {
+          "preset": "fade",
+          "duration": 0.32
+        },
+        "keyframes": [
+          {
+            "time": 0.9,
+            "property": "offsetX",
+            "value": -10
+          },
+          {
+            "time": 1.25,
+            "property": "offsetX",
+            "value": 0
+          },
+          {
+            "time": 2,
+            "property": "scale",
+            "value": 1.015
+          },
+          {
+            "time": 3.1,
+            "property": "scale",
+            "value": 1
+          }
+        ]
+      }
+    }
+  ]
+}
